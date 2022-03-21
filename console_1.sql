@@ -91,7 +91,7 @@ select t1.anio || ' / ' || t1.mes Lista_AnioMes,  t1.fianza Lista_Fianza, t1.end
 DECODE(t1.tipo_endoso,'4',nvl(t1.facul_prima_cedida_original,0)*-1,nvl(t1.facul_prima_cedida_original,0)) Lista_Prima_Orig_Cedida,
 DECODE(t1.tipo_endoso,'4',nvl(t1.facul_prima_cedida,0)*-1,nvl(t1.facul_prima_cedida,0))   Lista_Prima_Neta_Cedida
 from cie_bordero t1
-where t1.ramo = 'FIA'
+where t1.ramo = 'FCC'
 and t1.anio = 2022
 and t1.mes between 2 and 2
 and nvl(t1.facul_prima_cedida,0) > 0
@@ -109,12 +109,12 @@ FROM (
           t1.porcenta_participacion Det_Porcenta
     from rea_det_distribucion t1
     where t1.cod_contrato = 3
-    and t1.ramo = 'FIA' AND
+    and t1.ramo = 'FCC' AND
     t1.fianza IN
     (
         select t1.fianza
         from cie_bordero t1
-        where t1.ramo = 'FIA'
+        where t1.ramo = 'FCC'
         and t1.anio = 2022
         and t1.mes between 2 and 2
         and nvl(t1.facul_prima_cedida,0) > 0
@@ -123,11 +123,21 @@ FROM (
     (
         select t1.endoso
         from cie_bordero t1
-        where t1.ramo = 'FIA'
+        where t1.ramo = 'FCC'
         and t1.anio = 2022
         and t1.mes between 2 and 2
         and nvl(t1.facul_prima_cedida,0) > 0
     )
 ) T1
 GROUP BY det_cod_reaf;
+
+
+
+
+/**/
+SELECT * FROM
+
+
+
+
 
