@@ -74,3 +74,176 @@ and ramo = 'FIA';
 
 
 select * from cie_bordero;
+
+
+
+select * from
+              (
+
+select COD_REAFIANZADOR
+from csegura.PARTIDA_3_PRODUCCION_SAP
+where anio=2022 and mes=02
+and prima_cedida >0
+GROUP BY COD_REAFIANZADOR
+UNION
+select COD_REAFIANZADOR
+from csegura.PARTIDA_3_PRODUCCION_SAP
+where anio=2022 and mes=02
+and prima_cedida >0
+GROUP BY COD_REAFIANZADOR
+) T1 INNER JOIN
+
+
+
+
+
+  select ex_year, sum(Prima_Neta_Cedida) Prima_Neta_Cedida,
+  ramo
+  from (
+  select t1.ex_year,
+  DECODE(t1.tipo_endoso,'4',nvl(t1.capa1_prima_cedida,0)*-1,nvl(t1.capa1_prima_cedida,0))+DECODE(t1.tipo_endoso,'4',nvl(t1.capa2_prima_cedida,0)*-1,nvl(t1.capa2_prima_cedida,0)) Prima_Neta_Cedida,
+  t1.ramo
+  from cie_bordero t1
+  where t1.anio = 2022
+  and t1.mes between 2 and 2
+  and t1.ramo in('FIA','FCC','FCV')
+  order by  t1.mes)
+  group by ex_year, ramo;
+
+SELECT * FROM CIE_BORDERO;
+
+
+
+
+
+/********************************************/
+  select 1 AS DET_COD_REAF, SUM(DECODE(t1.tipo_endoso,'4',nvl(t1.capa1_prima_cedida,0)*-1,nvl(t1.capa1_prima_cedida,0))
+      +DECODE(t1.tipo_endoso,'4',nvl(t1.capa2_prima_cedida,0)*-1,nvl(t1.capa2_prima_cedida,0))) Prima_Neta_Cedida,
+        'CUENTAS 6' AS COMEN,  SUBSTR(T1.CLASE,1,1) AS CLASE
+  from cie_bordero  t1
+  where t1.anio = 2022
+  and t1.mes between 2 and 2
+  and t1.ramo in('FIA','FCC','FCV')
+  AND SUBSTR(T1.CLASE,1,1) IN ('A','B','C')
+ GROUP BY SUBSTR(T1.CLASE,1,1)
+UNION
+select 1 as det_cod_reaf, sum(MONTO) as MONTO, 'ADMINISTRATIVOS ANTE  PARTICULARES' AS COMEN,TIPO
+from (
+          select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO, ('PRIMAS FACTULTATIVAS') AS COMEN, 'FCC' AS TIPO
+          FROM (
+                   select t1.fianza                 Det_Fianza,
+                          t1.endoso                 Det_Endoso,
+                          t1.ex_year                Det_Exyear,
+                          t1.cod_contrato           Det_Capa,
+                          t1.cod_reafianzador       Det_Cod_Reaf,
+                          t1.prima_cedida_original  Det_Pcedida_Orig,
+                          t1.prima_cedida           Det_Pcedida,
+                          t1.porcenta_participacion Det_Porcenta
+                   from rea_det_distribucion t1
+                   where t1.cod_contrato = 3
+                     and t1.ramo = 'FCC'
+                     AND t1.fianza IN
+                         (
+                             select t1.fianza
+                             from cie_bordero t1
+                             where t1.ramo = 'FCC'
+                               and t1.anio = 2022
+                               and t1.mes between 2 and 2
+                               and nvl(t1.facul_prima_cedida, 0) > 0
+                         )
+                     AND t1.endoso in
+                         (
+                             select t1.endoso
+                             from cie_bordero t1
+                             where t1.ramo = 'FCC'
+                               and t1.anio = 2022
+                               and t1.mes between 2 and 2
+                               and nvl(t1.facul_prima_cedida, 0) > 0
+                         )
+               ) T1
+          GROUP BY det_cod_reaf
+
+          UNION
+
+          select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO, ('PRIMAS FACTULTATIVAS') AS COMEN, 'FIA' AS TIPO
+          FROM (
+                   select t1.fianza                 Det_Fianza,
+                          t1.endoso                 Det_Endoso,
+                          t1.ex_year                Det_Exyear,
+                          t1.cod_contrato           Det_Capa,
+                          t1.cod_reafianzador       Det_Cod_Reaf,
+                          t1.prima_cedida_original  Det_Pcedida_Orig,
+                          t1.prima_cedida           Det_Pcedida,
+                          t1.porcenta_participacion Det_Porcenta
+                   from rea_det_distribucion t1
+                   where t1.cod_contrato = 3
+                     and t1.ramo = 'FIA'
+                     AND t1.fianza IN
+                         (
+                             select t1.fianza
+                             from cie_bordero t1
+                             where t1.ramo = 'FIA'
+                               and t1.anio = 2022
+                               and t1.mes between 2 and 2
+                               and nvl(t1.facul_prima_cedida, 0) > 0
+                         )
+                     AND t1.endoso in
+                         (
+                             select t1.endoso
+                             from cie_bordero t1
+                             where t1.ramo = 'FIA'
+                               and t1.anio = 2022
+                               and t1.mes between 2 and 2
+                               and nvl(t1.facul_prima_cedida, 0) > 0
+                         )
+               ) T1
+          GROUP BY det_cod_reaf, 'FIA'
+
+          UNION
+
+          select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO, ('PRIMAS FACTULTATIVAS') AS COMEN, 'FCV' as TIPO
+          FROM (
+                   select t1.fianza                 Det_Fianza,
+                          t1.endoso                 Det_Endoso,
+                          t1.ex_year                Det_Exyear,
+                          t1.cod_contrato           Det_Capa,
+                          t1.cod_reafianzador       Det_Cod_Reaf,
+                          t1.prima_cedida_original  Det_Pcedida_Orig,
+                          t1.prima_cedida           Det_Pcedida,
+                          t1.porcenta_participacion Det_Porcenta
+                   from rea_det_distribucion t1
+                   where t1.cod_contrato = 3
+                     and t1.ramo = 'FCV'
+                     AND t1.fianza IN
+                         (
+                             select t1.fianza
+                             from cie_bordero t1
+                             where t1.ramo = 'FCV'
+                               and t1.anio = 2022
+                               and t1.mes between 2 and 2
+                               and nvl(t1.facul_prima_cedida, 0) > 0
+                         )
+                     AND t1.endoso in
+                         (
+                             select t1.endoso
+                             from cie_bordero t1
+                             where t1.ramo = 'FCV'
+                               and t1.anio = 2022
+                               and t1.mes between 2 and 2
+                               and nvl(t1.facul_prima_cedida, 0) > 0
+                         )
+               ) T1
+          GROUP BY det_cod_reaf, 'FCV'
+          UNION
+          select COD_REAFIANZADOR,
+                 SUM(PRIMA_CEDIDA)                            PRIMA_CEDIDA,
+                 ('PRIMAS CEDIDAS ' || MES || '/' || ANIO) AS COMEN,
+                 TIPO
+          from csegura.PARTIDA_3_PRODUCCION_SAP
+          where anio = 2022
+            and mes = 02
+            and prima_cedida > 0
+          GROUP BY COD_REAFIANZADOR, ('PRIMAS CEDIDAS ' || MES || '/' || ANIO), TIPO
+  )t1
+where TIPO='FCC'
+GROUP BY 'ADMINISTRATIVOS ANTE  PARTICULARES', TIPO;

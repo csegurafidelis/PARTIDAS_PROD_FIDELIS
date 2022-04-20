@@ -97,6 +97,8 @@ and t1.mes between 2 and 2
 and nvl(t1.facul_prima_cedida,0) > 0
 order by t1.anio, t1.mes, t1.clase, t1.fianza, t1.endoso;
 
+
+/*******************/
 select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
 FROM (
     select t1.fianza Det_Fianza,
@@ -109,12 +111,12 @@ FROM (
           t1.porcenta_participacion Det_Porcenta
     from rea_det_distribucion t1
     where t1.cod_contrato = 3
-    and t1.ramo = 'FCC' AND
+    and t1.ramo IN('FIA','FCC','FCV') AND
     t1.fianza IN
     (
         select t1.fianza
         from cie_bordero t1
-        where t1.ramo = 'FCC'
+        where t1.ramo IN('FIA','FCC','FCV')
         and t1.anio = 2022
         and t1.mes between 2 and 2
         and nvl(t1.facul_prima_cedida,0) > 0
@@ -123,7 +125,7 @@ FROM (
     (
         select t1.endoso
         from cie_bordero t1
-        where t1.ramo = 'FCC'
+        where t1.ramo IN('FIA','FCC','FCV')
         and t1.anio = 2022
         and t1.mes between 2 and 2
         and nvl(t1.facul_prima_cedida,0) > 0
@@ -131,13 +133,227 @@ FROM (
 ) T1
 GROUP BY det_cod_reaf;
 
-
-
-
-/**/
-SELECT * FROM
-
-
-
-
-
+/****** CUOTA SIB ******/
+select det_cod_reaf, (Monto*.01) as SIB
+from (
+         select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
+         FROM (
+                  select t1.fianza                 Det_Fianza,
+                         t1.endoso                 Det_Endoso,
+                         t1.ex_year                Det_Exyear,
+                         t1.cod_contrato           Det_Capa,
+                         t1.cod_reafianzador       Det_Cod_Reaf,
+                         t1.prima_cedida_original  Det_Pcedida_Orig,
+                         t1.prima_cedida           Det_Pcedida,
+                         t1.porcenta_participacion Det_Porcenta
+                  from rea_det_distribucion t1
+                  where t1.cod_contrato = 3
+                    and t1.ramo= 'FCC'
+                    AND t1.fianza IN
+                        (
+                            select t1.fianza
+                            from cie_bordero t1
+                            where t1.ramo ='FCC'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+                    AND t1.endoso in
+                        (
+                            select t1.endoso
+                            from cie_bordero t1
+                            where t1.ramo ='FCC'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+              ) T1
+         GROUP BY det_cod_reaf
+     ) tSIB
+UNION
+select det_cod_reaf, (Monto*.01) as SIB
+from (
+         select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
+         FROM (
+                  select t1.fianza                 Det_Fianza,
+                         t1.endoso                 Det_Endoso,
+                         t1.ex_year                Det_Exyear,
+                         t1.cod_contrato           Det_Capa,
+                         t1.cod_reafianzador       Det_Cod_Reaf,
+                         t1.prima_cedida_original  Det_Pcedida_Orig,
+                         t1.prima_cedida           Det_Pcedida,
+                         t1.porcenta_participacion Det_Porcenta
+                  from rea_det_distribucion t1
+                  where t1.cod_contrato = 3
+                    and t1.ramo= 'FIA'
+                    AND t1.fianza IN
+                        (
+                            select t1.fianza
+                            from cie_bordero t1
+                            where t1.ramo ='FIA'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+                    AND t1.endoso in
+                        (
+                            select t1.endoso
+                            from cie_bordero t1
+                            where t1.ramo ='FIA'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+              ) T1
+         GROUP BY det_cod_reaf
+     ) tSIB
+UNION
+select det_cod_reaf, (Monto*.01) as SIB
+from (
+         select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
+         FROM (
+                  select t1.fianza                 Det_Fianza,
+                         t1.endoso                 Det_Endoso,
+                         t1.ex_year                Det_Exyear,
+                         t1.cod_contrato           Det_Capa,
+                         t1.cod_reafianzador       Det_Cod_Reaf,
+                         t1.prima_cedida_original  Det_Pcedida_Orig,
+                         t1.prima_cedida           Det_Pcedida,
+                         t1.porcenta_participacion Det_Porcenta
+                  from rea_det_distribucion t1
+                  where t1.cod_contrato = 3
+                    and t1.ramo= 'FCV'
+                    AND t1.fianza IN
+                        (
+                            select t1.fianza
+                            from cie_bordero t1
+                            where t1.ramo ='FCV'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+                    AND t1.endoso in
+                        (
+                            select t1.endoso
+                            from cie_bordero t1
+                            where t1.ramo ='FCV'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+              ) T1
+         GROUP BY det_cod_reaf
+     ) tSIB
+/**** ISR *****/
+UNION
+select det_cod_reaf, (Monto-(Monto*.01))*0.05 as ISR
+from (
+         select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
+         FROM (
+                  select t1.fianza                 Det_Fianza,
+                         t1.endoso                 Det_Endoso,
+                         t1.ex_year                Det_Exyear,
+                         t1.cod_contrato           Det_Capa,
+                         t1.cod_reafianzador       Det_Cod_Reaf,
+                         t1.prima_cedida_original  Det_Pcedida_Orig,
+                         t1.prima_cedida           Det_Pcedida,
+                         t1.porcenta_participacion Det_Porcenta
+                  from rea_det_distribucion t1
+                  where t1.cod_contrato = 3
+                    and t1.ramo= 'FCC'
+                    AND t1.fianza IN
+                        (
+                            select t1.fianza
+                            from cie_bordero t1
+                            where t1.ramo ='FCC'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+                    AND t1.endoso in
+                        (
+                            select t1.endoso
+                            from cie_bordero t1
+                            where t1.ramo ='FCC'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+              ) T1
+         GROUP BY det_cod_reaf
+     ) tSIB
+UNION
+select det_cod_reaf, (Monto-(Monto*.01))*0.05 as ISR
+from (
+         select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
+         FROM (
+                  select t1.fianza                 Det_Fianza,
+                         t1.endoso                 Det_Endoso,
+                         t1.ex_year                Det_Exyear,
+                         t1.cod_contrato           Det_Capa,
+                         t1.cod_reafianzador       Det_Cod_Reaf,
+                         t1.prima_cedida_original  Det_Pcedida_Orig,
+                         t1.prima_cedida           Det_Pcedida,
+                         t1.porcenta_participacion Det_Porcenta
+                  from rea_det_distribucion t1
+                  where t1.cod_contrato = 3
+                    and t1.ramo= 'FIA'
+                    AND t1.fianza IN
+                        (
+                            select t1.fianza
+                            from cie_bordero t1
+                            where t1.ramo ='FIA'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+                    AND t1.endoso in
+                        (
+                            select t1.endoso
+                            from cie_bordero t1
+                            where t1.ramo ='FIA'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+              ) T1
+         GROUP BY det_cod_reaf
+     ) tSIB
+UNION
+select det_cod_reaf, (Monto-(Monto*.01))*0.05 as ISR
+from (
+         select det_cod_reaf, sum(DET_PCEDIDA) AS MONTO
+         FROM (
+                  select t1.fianza                 Det_Fianza,
+                         t1.endoso                 Det_Endoso,
+                         t1.ex_year                Det_Exyear,
+                         t1.cod_contrato           Det_Capa,
+                         t1.cod_reafianzador       Det_Cod_Reaf,
+                         t1.prima_cedida_original  Det_Pcedida_Orig,
+                         t1.prima_cedida           Det_Pcedida,
+                         t1.porcenta_participacion Det_Porcenta
+                  from rea_det_distribucion t1
+                  where t1.cod_contrato = 3
+                    and t1.ramo= 'FCV'
+                    AND t1.fianza IN
+                        (
+                            select t1.fianza
+                            from cie_bordero t1
+                            where t1.ramo ='FCV'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+                    AND t1.endoso in
+                        (
+                            select t1.endoso
+                            from cie_bordero t1
+                            where t1.ramo ='FCV'
+                              and t1.anio = 2022
+                              and t1.mes between 2 and 2
+                              and nvl(t1.facul_prima_cedida, 0) > 0
+                        )
+              ) T1
+         GROUP BY det_cod_reaf
+     ) tSIB
+;
