@@ -20,7 +20,7 @@ select substr(t1.clase,1,1) cl,t1.mes,t1.clase,t1.ramo,t1.fianza,t1.endoso, t1.p
          union
          select substr(t1.clase,1,1) cl,t1.mes,t1.clase,t1.ramo,t1.fianza,t1.endoso, t1.prima_anual,t1.ex_year,t1.monto_afianzado,t2.descripcion,
 		     SUM( DECODE(t1.tipo_endoso,'4',nvl(t1.capa1_prima_cedida,0)*-1,nvl(t1.capa1_prima_cedida,0)) +
-		          DECODE(t1.tipo_endoso,'4',nvl(t1.capa2_prima_cedida,0)*-1,nvl(t1.capa2_prima_cedida,0)) +
+		          DECODE(t1.tipo_endoso,'4',notenvl(t1.capa2_prima_cedida,0)*-1,nvl(t1.capa2_prima_cedida,0)) +
 		          DECODE(t1.tipo_endoso,'4',nvl(t1.facul_prima_cedida,0)*-1,nvl(t1.facul_prima_cedida,0))
 		         ) Prima_Cedida
 		from cie_bordero t1,fia_tipo_endoso t2
